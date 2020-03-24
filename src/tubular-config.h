@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <array>
+#include <limits>
 #include <string>
 
 namespace tubular {
@@ -25,6 +26,9 @@ struct TubularConfig {
   std::array<float, 3> fix_normal;
 
   bool one_side_plane = false;  // radial_segments == 2 only
+
+  float culling_y_min = std::numeric_limits<float>::infinity();
+  float culling_y_max = -std::numeric_limits<float>::infinity();
 };
 
 }  // namespace tubular

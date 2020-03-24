@@ -470,8 +470,8 @@ void Tubular(const TubularConfig &config) {
   } else if (!config.cyhair_filepath.empty()) {
     std::vector<std::vector<float>> _vertices;
     std::vector<std::vector<float>> _thicknesses;
-    LoadCyHair(config.cyhair_filepath, /* is_y_up*/ true, &_vertices,
-               &_thicknesses);
+    LoadCyHair(config.cyhair_filepath, /* is_y_up*/ true, config.culling_y_min,
+               config.culling_y_max, &_vertices, &_thicknesses);
     curve_vertices.emplace_back(_vertices);
     curve_thicknesses.emplace_back(_thicknesses);
   } else {
@@ -546,6 +546,7 @@ void Tubular(const TubularConfig &config) {
   // output_materials.back().diffuse_texname = "output.exr";
 
   WriteObj(config.obj_filepath, attributes, shapes, output_materials);
+  RTLOG_INFO("total vertices : {}", attributes.vertices.size() / 3);
 }
 
 }  // namespace tubular

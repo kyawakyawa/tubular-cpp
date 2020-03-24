@@ -134,6 +134,7 @@ bool CyHair::Load(const std::string &filepath) {
 }
 
 bool LoadCyHair(const std::string &filepath, const bool is_y_up,
+                const float culling_y_min, const float culling_y_max,
                 std::vector<std::vector<float>> *vertices,
                 std::vector<std::vector<float>> *thicknesses) {
   CyHair cyhair;
@@ -154,6 +155,13 @@ bool LoadCyHair(const std::string &filepath, const bool is_y_up,
     const size_t num_vertices = num_segment + 1;
     if (num_vertices < 2) {
       RTLOG_WARN("strand is broken");
+      continue;
+    }
+
+    // HACK
+    if (culling_y_min < cyhair.points_.at(offset * 3 + 1) &&
+        cyhair.points_.at(offset * 3 + 1) < culling_y_max /*y up*/) {
+      offset += num_vertices;
       continue;
     }
 

@@ -42,6 +42,12 @@ void init(tubular::TubularConfig* config, ObjectHandler* h) {
 
   h->add_property("one_side_plane", &(config->one_side_plane),
                   staticjson::Flags::Optional);
+
+  h->add_property("culling_y_min", &(config->culling_y_min),
+                  staticjson::Flags::Optional);
+
+  h->add_property("culling_y_max", &(config->culling_y_max),
+                  staticjson::Flags::Optional);
 }
 }  // namespace staticjson
 

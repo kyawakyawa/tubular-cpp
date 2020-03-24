@@ -48,6 +48,7 @@ public:
 };
 
 bool LoadCyHair(const std::string &filepath, const bool is_y_up,
+                const float culling_y_min, const float culling_y_max,
                 std::vector<std::vector<float>> *vertices,
                 std::vector<std::vector<float>> *thicknesses);
 }  // namespace tubular
