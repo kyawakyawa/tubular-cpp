@@ -50,8 +50,9 @@ static void CopyFloat4ToFloatArray(const std::vector<float4> &src,
 
 TriangleMesh BuildTriangleMesh(const Curve *curve, const int tubularSegments,
                                const int radialSegments, const bool closed,
-                               const float3 &fix_normal,
-                               const bool one_side_plane = false) {
+                               const TubularConfig &config) {
+  const float3 fix_normal   = -float3(config.fix_normal.data());
+  const bool one_side_plane = config.one_side_plane;
   std::vector<float3> vertices;
   std::vector<float3> normals;
   std::vector<float4> tangents;
@@ -73,7 +74,38 @@ TriangleMesh BuildTriangleMesh(const Curve *curve, const int tubularSegments,
                   (!closed) ? tubularSegments : 0, &vertices, &normals,
                   &tangents);
 
-  for (int i = 0; i <= tubularSegments; i++) {
+  {  // HACK
+    const FrenetFrame &fr = frames[size_t(tubularSegments)];
+
+    const float u0  = 1.f * (tubularSegments - 1) / tubularSegments;
+    const float u1  = 1.f;
+    const float3 p0 = curve->GetPointAt(u0);
+    const float3 p1 = curve->GetPointAt(u1);
+
+    const float3 &d = p1 - p0;
+    const float3 p  = p1 + d;
+
+    const float3 N = fr.Normal();
+    const float3 B = fr.Binormal();
+
+    const float radius =
+        config.culling_y_min < p.y() ? curve->GetRadiusAt(u1) : 1e-6f;
+
+    for (int j = 0; j < radialSegments; j++) {
+      const float v    = (1.f * j - 0.5f) / radialSegments * PI2;
+      const float sin_ = sin(v);
+      const float cos_ = cos(v);
+
+      const float3 normal = vnormalize(cos_ * N + sin_ * B);
+      vertices.emplace_back(p + radius * normal);
+      normals.emplace_back(normal);
+
+      const float3 tangent = fr.Tangent();
+      tangents.emplace_back(tangent.x(), tangent.y(), tangent.z(), 0.f);
+    }
+  }
+
+  for (int i = 0; i <= tubularSegments + 1; i++) {
     if (radialSegments == 2 && one_side_plane) {
       for (int j = 0; j <= radialSegments; j++) {
         const float u = std::min(1.f, 1.f * j / (radialSegments - 1));
@@ -93,7 +125,7 @@ TriangleMesh BuildTriangleMesh(const Curve *curve, const int tubularSegments,
   std::vector<uint32_t> normal_indices;
   std::vector<uint32_t> uv_indices;
 
-  for (int j = 1; j <= tubularSegments; j++) {
+  for (int j = 1; j <= tubularSegments + 1; j++) {
     for (int i = 1; i <= radialSegments; i++) {
       {  // vertex, normal
 
@@ -517,9 +549,8 @@ void Tubular(const TubularConfig &config) {
       const int radialSegments = config.radial_segments;
       const bool closed        = false;
 
-      TriangleMesh mesh = BuildTriangleMesh(
-          &catmul_rom_curve, tubular_segments, radialSegments, closed,
-          -float3(config.fix_normal.data()), config.one_side_plane);
+      TriangleMesh mesh = BuildTriangleMesh(&catmul_rom_curve, tubular_segments,
+                                            radialSegments, closed, config);
       mesh.name = std::to_string(bundle_id) + "-" + std::to_string(strand_id);
       meshes.emplace_back(mesh);
     }
@@ -547,6 +578,7 @@ void Tubular(const TubularConfig &config) {
 
   WriteObj(config.obj_filepath, attributes, shapes, output_materials);
   RTLOG_INFO("total vertices : {}", attributes.vertices.size() / 3);
+  RTLOG_INFO("total indices : {}", shapes.front().mesh.indices.size() / 3);
 }
 
 }  // namespace tubular
