@@ -29,6 +29,9 @@ struct TubularConfig {
 
   float culling_y_min = std::numeric_limits<float>::infinity();
   float culling_y_max = -std::numeric_limits<float>::infinity();
+
+  float culling_z_min = std::numeric_limits<float>::infinity();
+  float culling_z_max = -std::numeric_limits<float>::infinity();
 };
 
 }  // namespace tubular

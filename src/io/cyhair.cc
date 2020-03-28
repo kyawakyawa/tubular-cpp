@@ -135,6 +135,7 @@ bool CyHair::Load(const std::string &filepath) {
 
 bool LoadCyHair(const std::string &filepath, const bool is_y_up,
                 const float culling_y_min, const float culling_y_max,
+                const float culling_z_min, const float culling_z_max,
                 std::vector<std::vector<float>> *vertices,
                 std::vector<std::vector<float>> *thicknesses) {
   CyHair cyhair;
@@ -160,7 +161,9 @@ bool LoadCyHair(const std::string &filepath, const bool is_y_up,
 
     // HACK
     if (culling_y_min < cyhair.points_.at(offset * 3 + 1) &&
-        cyhair.points_.at(offset * 3 + 1) < culling_y_max /*y up*/) {
+        cyhair.points_.at(offset * 3 + 1) < culling_y_max /*y up*/ &&
+        culling_z_min < cyhair.points_.at(offset * 3 + 2) &&
+        cyhair.points_.at(offset * 3 + 2) < culling_z_max) {
       offset += num_vertices;
       continue;
     }

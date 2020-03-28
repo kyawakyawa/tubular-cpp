@@ -48,6 +48,12 @@ void init(tubular::TubularConfig* config, ObjectHandler* h) {
 
   h->add_property("culling_y_max", &(config->culling_y_max),
                   staticjson::Flags::Optional);
+
+  h->add_property("culling_z_min", &(config->culling_z_min),
+                  staticjson::Flags::Optional);
+
+  h->add_property("culling_z_max", &(config->culling_z_max),
+                  staticjson::Flags::Optional);
 }
 }  // namespace staticjson
 

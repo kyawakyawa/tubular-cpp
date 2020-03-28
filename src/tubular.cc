@@ -82,8 +82,8 @@ TriangleMesh BuildTriangleMesh(const Curve *curve, const int tubularSegments,
     const float3 p0 = curve->GetPointAt(u0);
     const float3 p1 = curve->GetPointAt(u1);
 
-    const float3 &d = p1 - p0;
-    const float3 p  = p1 + d;
+    const float3 d = p1 - p0;
+    const float3 p = p1 + d;
 
     const float3 N = fr.Normal();
     const float3 B = fr.Binormal();
@@ -503,7 +503,8 @@ void Tubular(const TubularConfig &config) {
     std::vector<std::vector<float>> _vertices;
     std::vector<std::vector<float>> _thicknesses;
     LoadCyHair(config.cyhair_filepath, /* is_y_up*/ true, config.culling_y_min,
-               config.culling_y_max, &_vertices, &_thicknesses);
+               config.culling_y_max, config.culling_z_min, config.culling_z_max,
+               &_vertices, &_thicknesses);
     curve_vertices.emplace_back(_vertices);
     curve_thicknesses.emplace_back(_thicknesses);
   } else {
